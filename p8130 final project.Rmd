@@ -21,10 +21,10 @@ library(broom)
 ```
 
 
-Loading dataset
+Loading and cleaning the dataset
 ```{r, include=FALSE}
-heart_disease = readxl::read_excel("./data/GHProject_Dataset.xlsx") %>%
-  clean_names()
+hospital_data = readxl::read_excel("./data/GHProject_Dataset.xlsx") %>%
+  clean_names() 
 ```
 
 
