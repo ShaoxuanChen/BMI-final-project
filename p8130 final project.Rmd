@@ -29,7 +29,7 @@ hospital_visit = hospital_data %>%
   separate(., admitdtm, into = c("dayofweek","date","year"), sep = ",") %>% 
   mutate(visit_num = as.numeric(visit_num)) 
 
-hospital_visit %>% 
+remove_id = hospital_visit %>% 
  mutate(date = str_replace(date, "January ", "01"),
         date = str_replace(date, "February ", "02"),
         date = str_replace(date, "March ", "03"),
@@ -43,9 +43,9 @@ hospital_visit %>%
         date = str_replace(date, "November ", "11"),
         date = str_replace(date, "December ", "12")) %>% 
   mutate(date = as.numeric(date)) %>% 
-  #arrange(date) %>% 
-  group_by(patientid, date) %>% 
-  filter(visit_num > 1) 
+  arrange(date) %>% 
+  group_by(patientid) %>% 
+  filter(date == min(date)) 
   
   
   
