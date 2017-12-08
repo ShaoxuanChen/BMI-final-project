@@ -13,6 +13,9 @@ library(haven)
 library(rvest)
 library(stringr)
 library(forcats)
+library(knitr)
+library(ggplot2)
+library(ggpubr)
 ```
 
 
@@ -52,6 +55,7 @@ remove_id = hospital_visit %>%
 Select variables of interest
 ```{r}
 visit_data = remove_id %>% 
+<<<<<<< HEAD
   dplyr::select(-visit_num, -dayofweek, -facilityname, -postalcode, -facilityzip) %>%
   mutate(mews, mews = ifelse( mews>5, 6, mews)) %>% 
   mutate(mews = as.character(mews)) %>% 
@@ -62,8 +66,47 @@ visit_data = remove_id %>%
   
   
   
-
+=======
+  dplyr::select(-visit_num, -dayofweek, -facilityname, -postalcode, -facilityzip)
 ```
 
+>>>>>>> 66125cb1b3882ec1f42aa30cf981ce56c795891b
+
+```{r}
+summary(visit_data)
+```
+
+
+```{r}
+par(mfrow=c(2,3))
+hist(visit_data$loshours)
+hist(visit_data$losdays2)
+hist(visit_data$mews)
+hist(visit_data$cindex)
+hist(visit_data$evisit)
+hist(visit_data$ageyear)
+hist(visit_data$bmi)
+hist(visit_data$bpsystolic)
+hist(visit_data$o2sat)
+hist(visit_data$temperature)
+hist(visit_data$heartrate)
+hist(visit_data$respirationrate)
+hist(visit_data$bpdiastolic)
+```
+
+```{r warning = FALSE}
+log_loshours = ggplot(data = visit_data, aes(x = log(loshours))) +
+  geom_histogram() 
+
+log_losdays2 = ggplot(data = visit_data, aes(x = log(losdays2))) +
+  geom_histogram()
+
+log_mews = ggplot(data = visit_data, aes(x = log(mews))) +
+  geom_histogram()
+
+ggarrange(log_loshours, log_losdays2, log_mews + rremove("x.text"), 
+          labels = c("A", "B", "C"),
+          ncol = 3, nrow = 1)
+```
 
 
