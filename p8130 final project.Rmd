@@ -24,7 +24,12 @@ library(broom)
 Loading and cleaning the dataset
 ```{r, include=FALSE}
 hospital_data = readxl::read_excel("./data/GHProject_Dataset.xlsx") %>%
-  clean_names() 
+  clean_names() %>% 
+  mutate(patientid = as.character(patientid)) %>% 
+  group_by(patientid) %>% 
+  summarize(count_patientid = n())
+  
+
 ```
 
 
