@@ -55,33 +55,22 @@ remove_id = hospital_visit %>%
 Select variables of interest
 ```{r}
 visit_data = remove_id %>% 
-<<<<<<< HEAD
   dplyr::select(-visit_num, -dayofweek, -facilityname, -postalcode, -facilityzip) %>%
   mutate(mews, mews = ifelse( mews>5, 6, mews)) %>% 
   mutate(mews = as.character(mews)) %>% 
   mutate(mews = recode(mews, `0` = "normal", `1` = "normal", `1` = "normal", `2` = "increase_caution", `3` = "increase_caution", `4` = "further_deterioration", `5` = "further_deterioration", `6` = "immediate_action_required"))
-
-
-
-  
-  
-  
-=======
-  dplyr::select(-visit_num, -dayofweek, -facilityname, -postalcode, -facilityzip)
 ```
 
->>>>>>> 66125cb1b3882ec1f42aa30cf981ce56c795891b
+
 
 ```{r}
 summary(visit_data)
 ```
 
-
 ```{r}
 par(mfrow=c(2,3))
 hist(visit_data$loshours)
 hist(visit_data$losdays2)
-hist(visit_data$mews)
 hist(visit_data$cindex)
 hist(visit_data$evisit)
 hist(visit_data$ageyear)
@@ -101,12 +90,8 @@ log_loshours = ggplot(data = visit_data, aes(x = log(loshours))) +
 log_losdays2 = ggplot(data = visit_data, aes(x = log(losdays2))) +
   geom_histogram()
 
-log_mews = ggplot(data = visit_data, aes(x = log(mews))) +
-  geom_histogram()
 
-ggarrange(log_loshours, log_losdays2, log_mews + rremove("x.text"), 
-          labels = c("A", "B", "C"),
-          ncol = 3, nrow = 1)
+
 ```
 
 
