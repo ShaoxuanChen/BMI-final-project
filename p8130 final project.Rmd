@@ -86,9 +86,12 @@ visit_data = visit_data %>%
   mutate(maritalstatus = recode(maritalstatus, `Single` = "1", `Married` = "2", `Widowed` = "3", `Divorced` = "4", `Separated` = "5", `Civil Union` = "6")) 
 
 
-         
+##mutate insurancetype: "Private"---1 "Medicare"---2, "Medicaid"----3 
+#note:There is Na in the variable
+visit_data = visit_data %>%
+  mutate(insurancetype = recode(insurancetype, `Private` = "1", `Medicare` = "2", `Medicaid` = "3")) 
 
-unique(visit_data$maritalstatus)
+unique(visit_data$insurancetype)
 
 ```
 
