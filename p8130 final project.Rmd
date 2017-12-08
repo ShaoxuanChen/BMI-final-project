@@ -1,0 +1,31 @@
+---
+title: "p8130 final project"
+author: "chianti shi"
+date: "12/8/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(janitor)
+library(readxl)
+library(dplyr)
+library(ggplot2)
+library(ggpubr)
+library(HH)
+library("leaps")
+library(tidyr)
+library(faraway)
+library(broom)
+```
+
+
+Loading dataset
+```{r, include=FALSE}
+heart_disease = readxl::read_excel("./data/GHProject_Dataset.xlsx") %>%
+  clean_names()
+```
+
+
+
