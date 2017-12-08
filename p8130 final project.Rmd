@@ -45,11 +45,15 @@ remove_id = hospital_visit %>%
   mutate(date = as.numeric(date)) %>% 
   arrange(date) %>% 
   group_by(patientid) %>% 
-  filter(date == min(date)) 
-  
-  
-  
-         
+  filter(date == min(date))  
+```
+
+
+Select variables of interest
+```{r}
+visit_data = remove_id %>% 
+  dplyr::select(-visit_num, -dayofweek, -facilityname, -postalcode, -facilityzip)
+
 ```
 
 
