@@ -16,6 +16,7 @@ library(forcats)
 library(knitr)
 library(ggplot2)
 library(ggpubr)
+
 ```
 
 
@@ -54,11 +55,15 @@ remove_id = hospital_visit %>%
 
 Select variables of interest
 ```{r}
+#mutate mews column:   0, 1 to "1", 2,3,to "2", 4,5 to "3", 6 to "4"
 visit_data = remove_id %>% 
   dplyr::select(-visit_num, -dayofweek, -facilityname, -postalcode, -facilityzip) %>%
   mutate(mews, mews = ifelse( mews>5, 6, mews)) %>% 
   mutate(mews = as.character(mews)) %>% 
-  mutate(mews = recode(mews, `0` = "normal", `1` = "normal", `1` = "normal", `2` = "increase_caution", `3` = "increase_caution", `4` = "further_deterioration", `5` = "further_deterioration", `6` = "immediate_action_required"))
+  mutate(mews = recode(mews, `0` = "normal", `1` = "normal", `2` = "increase_caution", `3` = "increase_caution", `4` = "further_deterioration", `5` = "further_deterioration", `6` = "immediate_action_required")) %>% 
+  mutate(mews = recode(mews, `normal` = "1", `increase_caution` = "2", `further_deterioration` = "3", `immediate_action_required` = "4" ))
+
+
 ```
 
 
