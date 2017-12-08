@@ -25,11 +25,12 @@ Loading and cleaning the dataset
 ```{r, include=FALSE}
 hospital_data = readxl::read_excel("./data/GHProject_Dataset.xlsx") %>%
   clean_names() %>% 
-  mutate(patientid = as.character(patientid)) %>% 
-  group_by(patientid) %>% 
-  summarize(count_patientid = n())
-  
+  mutate(patientid = as.character(patientid)) 
 
+hospital_visit = hospital_data %>% 
+  group_by(patientid) %>% 
+  summarize(hospital_visit = n()) %>% 
+  inner_join(hospital_data, hospital_visit, by = "patientid")
 ```
 
 
