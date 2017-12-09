@@ -5,16 +5,16 @@ date: "12/8/2017"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include = FALSE, warning = FALSE, message = FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(janitor)
 library(readxl)
 library(dplyr)
 library(ggplot2)
-library(ggpubr)
+# library(ggpubr)
 library(HH)
-library("leaps")
+# library("leaps")
 library(tidyr)
 library(faraway)
 library(broom)
@@ -24,7 +24,8 @@ library(broom)
 Loading and cleaning the dataset
 ```{r, include=FALSE}
 hospital_data = readxl::read_excel("./data/GHProject_Dataset.xlsx") %>%
-  clean_names() 
+  clean_names() %>% 
+  mutate(patientid = as.character(patientid)) 
 ```
 
 
