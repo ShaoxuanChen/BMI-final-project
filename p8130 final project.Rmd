@@ -63,7 +63,6 @@ visit_data = remove_id %>%
   
 ```
 
-Note:there are NAs in variable `mews`, `maritalstatus`,`insurancetype`.
 
 We do not check normality for variables `gender`, `race`, `religion`, `maritalstatus`,`insurancetype` as they are catagorical variables. 
 
@@ -112,8 +111,23 @@ ggarrange(log_loshours, log_losdays2 + rremove("x.text"),
 ```{r}
 patient_data = visit_data %>% 
   mutate(loshours = log(loshours),
-         losdays2 = log(losdays2))
-```
+         losdays2 = log(losdays2)) 
 
-you guys can use this `patient_data` to perform further tests except the issue with NA and untransformed `evisit`. 
+replace_missing = function(vector, func) {
+  
+  if(is.numeric(vector)) {
+   func_vec = func(vector, na.rm = TRUE)
+   vector[is.na(vector)] = func_vec
+  }
+  return(vector)
+}
+
+patient_data1 = map_df(patient_data, ~replace_missing(.x, func = mean)) %>% 
+  na.omit()
+
+```
+There are 163 NA in `mews`, 77 in `maritalstatus`, 34 in `insurancetype`, 685 in `bmi`, 5 in `bpsystolic`, 3 in `o2sat`, 2 in `temperature`, 5 in `heartrate`, 3 in `respirationrate`, 1 in `bpdiastolic`. For missing values in numeric varaibles, NA are replaced by the mean of the rest of the dataset, NA in character variables are removed. 
+
+
+you guys can use this `patient_data1` to perform further tests except the issue with untransformed `evisit`. 
 
