@@ -26,7 +26,109 @@ Loading and cleaning the dataset
 hospital_data = readxl::read_excel("./data/GHProject_Dataset.xlsx") %>%
   clean_names() %>% 
   mutate(patientid = as.character(patientid)) 
+
+hospital_visit = hospital_data %>% 
+  group_by(patientid) %>% 
+  summarize(visit_num = n()) %>% 
+  inner_join(hospital_data, hospital_visit, by = "patientid") %>% 
+  separate(., admitdtm, into = c("dayofweek","date","year"), sep = ",") %>% 
+  mutate(visit_num = as.numeric(visit_num)) 
+
+remove_id = hospital_visit %>% 
+ mutate(date = str_replace(date, "January ", "01"),
+        date = str_replace(date, "February ", "02"),
+        date = str_replace(date, "March ", "03"),
+        date = str_replace(date, "April ", "04"),
+        date = str_replace(date, "May ", "05"),
+        date = str_replace(date, "June ", "06"),
+        date = str_replace(date, "July ", "07"),
+        date = str_replace(date, "August ", "08"),
+        date = str_replace(date, "September ", "09"),
+        date = str_replace(date, "October ", "10"),
+        date = str_replace(date, "November ", "11"),
+        date = str_replace(date, "December ", "12")) %>% 
+  mutate(date = as.numeric(date)) %>% 
+  arrange(date) %>% 
+  group_by(patientid) %>% 
+  filter(date == min(date)) 
+```
+
+Select variables of interest:
+```{r}
+visit_data = remove_id %>% 
+  dplyr::select(-visit_num, -dayofweek, -facilityname, -postalcode, -facilityzip) %>% 
+  mutate(is30dayreadmit = as.character(is30dayreadmit),
+         cindex = as.character(cindex),
+         icu_flag = as.character(icu_flag),
+         mews = as.character(mews))
+  
 ```
 
 
+We do not check normality for variables `gender`, `race`, `religion`, `maritalstatus`,`insurancetype` as they are catagorical variables. 
+
+subset for varaible summary: 
+```{r}
+summary_data = visit_data %>% 
+  dplyr::select(-gender, -race, -religion, -maritalstatus, -insurancetype,  -visitid, -date, -year, -is30dayreadmit, -cindex, -icu_flag, -mews)
+```
+
+```{r}
+summary(summary_data)
+```
+
+
+```{r}
+par(mfrow=c(2,3))
+hist(visit_data$loshours)
+hist(visit_data$losdays2)
+hist(visit_data$evisit)
+hist(visit_data$ageyear)
+hist(visit_data$bmi)
+hist(visit_data$bpsystolic)
+hist(visit_data$o2sat)
+hist(visit_data$temperature)
+hist(visit_data$heartrate)
+hist(visit_data$respirationrate)
+hist(visit_data$bpdiastolic)
+```
+
+
+We observe that `loshours`, `losdays2`, `evisit` lack normality so we try to do (I tried a couple transformations and was unable to make evisit normal)
+
+```{r warning = FALSE}
+log_loshours = ggplot(data = visit_data, aes(x = log(loshours))) +
+  geom_histogram() 
+
+log_losdays2 = ggplot(data = visit_data, aes(x = log(losdays2))) +
+  geom_histogram()
+
+ggarrange(log_loshours, log_losdays2 + rremove("x.text"), 
+          labels = c("A", "B"),
+          ncol = 2, nrow = 1)
+```
+
+
+```{r}
+patient_data = visit_data %>% 
+  mutate(loshours = log(loshours),
+         losdays2 = log(losdays2)) 
+
+replace_missing = function(vector, func) {
+  
+  if(is.numeric(vector)) {
+   func_vec = func(vector, na.rm = TRUE)
+   vector[is.na(vector)] = func_vec
+  }
+  return(vector)
+}
+
+patient_data1 = map_df(patient_data, ~replace_missing(.x, func = mean)) %>% 
+  na.omit()
+
+```
+There are 163 NA in `mews`, 77 in `maritalstatus`, 34 in `insurancetype`, 685 in `bmi`, 5 in `bpsystolic`, 3 in `o2sat`, 2 in `temperature`, 5 in `heartrate`, 3 in `respirationrate`, 1 in `bpdiastolic`. For missing values in numeric varaibles, NA are replaced by the mean of the rest of the dataset, NA in character variables are removed. 
+
+
+you guys can use this `patient_data1` to perform further tests except the issue with untransformed `evisit`. 
 
