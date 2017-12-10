@@ -247,6 +247,24 @@ AIC(model8)
 ```
 
 
+###Things need to be considered.
+```{r}
+model <- lm(losdays2 ~ is30dayreadmit + mews + cindex + bmi + evisit + icu_flag + ageyear + gender + race + religion + maritalstatus + insurancetype, data = patient_data1)
+
+best <- function(model, ...) 
+{
+  subsets <- regsubsets(formula(model), model.frame(model), ...)
+  subsets <- with(summary(subsets),
+                  cbind(p = as.numeric(rownames(which)), which, rss, rsq, adjr2, cp, bic))
+  
+  return(subsets)
+}  
+
+round(best(model, nbest = 1), 4)
+#mews ordinal  1234 meaningful -----numeric how to deal with it
+#insurance type----may be confounder.
+# calculate cross validation.
+```
 
 
 
