@@ -229,3 +229,25 @@ write_csv(patient_data1, "/Users/mhk/Desktop/patient_data1.csv")
 ```
 
 
+```{r}
+library("leaps")
+model1 = lm(losdays2 ~  mews + cindex + evisit  + ageyear  + insurancetype, data = patient_data1)
+model2 = lm(losdays2 ~ is30dayreadmit + mews + cindex + ageyear + gender +  insurancetype, data = patient_data1)
+model3 = lm(losdays2 ~ is30dayreadmit + cindex +  evisit +  ageyear + gender +  insurancetype, data = patient_data1)
+model4 = lm(losdays2 ~ mews + cindex + bmi + evisit + ageyear + insurancetype, data = patient_data1)
+model5 = lm(losdays2 ~ is30dayreadmit +  bmi +  ageyear + gender + race + insurancetype, data = patient_data1)
+model6 = lm(losdays2 ~ is30dayreadmit + mews + cindex +  evisit + ageyear + gender  + insurancetype, data = patient_data1)
+model7 = lm(losdays2 ~ mews + cindex + bmi + evisit  + ageyear + maritalstatus + insurancetype, data = patient_data1)
+model8 = lm(losdays2 ~ mews + cindex + bmi + evisit +  ageyear + gender  + religion + maritalstatus + insurancetype, data = patient_data1)
+anova(model4, model7)
+AIC(model5)
+AIC(model6)
+AIC(model8)
+
+```
+
+
+
+
+
+
