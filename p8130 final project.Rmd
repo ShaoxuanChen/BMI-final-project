@@ -1,5 +1,5 @@
 ---
-title: "p8130 final project. Muhire's Branch"
+title: "p8130 final project"
 author: "chianti shi"
 date: "12/8/2017"
 output: html_document
@@ -16,8 +16,7 @@ library(forcats)
 library(knitr)
 library(ggplot2)
 library(ggpubr)
-library(dplyr)
-
+library(leaps)
 ```
 
 
@@ -79,7 +78,7 @@ summary(summary_data)
 
 
 ```{r}
-par(mfrow = c(2, 3))
+par(mfrow=c(2,3))
 hist(visit_data$loshours)
 hist(visit_data$losdays2)
 hist(visit_data$evisit)
@@ -110,26 +109,63 @@ ggarrange(log_loshours, log_losdays2 + rremove("x.text"),
 
 
 ```{r}
-patient_data = visit_data %>%
+patient_data = visit_data %>% 
   mutate(loshours = log(loshours),
-  losdays2 = log(losdays2))
+         losdays2 = log(losdays2)) %>% 
+  mutate(mews = as.numeric(mews)) %>% 
+#mutate mews column:   0, 1 to "1", 2,3,to "2", 4,5 to "3", 6 to "4"
+# note: there are NAs in variable mews.
+mutate(mews, mews = ifelse( mews>5, 6, mews)) %>% 
+  mutate(mews = as.character(mews)) %>% 
+  mutate(mews = recode(mews, `0` = "normal", `1` = "normal", `2` = "increase_caution", `3` = "increase_caution", `4` = "further_deterioration", `5` = "further_deterioration", `6` = "immediate_action_required")) %>% 
+  mutate(mews = recode(mews, `normal` = "1", `increase_caution` = "2", `further_deterioration` = "3", `immediate_action_required` = "4" )) %>% 
+ mutate(evisit, evisit = ifelse( evisit>0, 1, evisit)) %>% 
+  mutate(evisit = as.character(evisit))
+
+visit_data = remove_id %>% 
+  dplyr::select(-visit_num, -dayofweek, -facilityname, -postalcode, -facilityzip) %>%
+  mutate(mews, mews = ifelse( mews>5, 6, mews)) %>% 
+  mutate(mews = as.character(mews)) %>% 
+  mutate(mews = recode(mews, `0` = "normal", `1` = "normal", `2` = "increase_caution", `3` = "increase_caution", `4` = "further_deterioration", `5` = "further_deterioration", `6` = "immediate_action_required")) %>% 
+  mutate(mews = recode(mews, `normal` = "1", `increase_caution` = "2", `further_deterioration` = "3", `immediate_action_required` = "4" )) %>% 
+  mutate(mews = as.numeric(mews))
+
+replace_missing = function(vector, func) {
   
-  replace_missing = function(vector, func) {
   if (is.numeric(vector)) {
-  func_vec = func(vector, na.rm = TRUE)
-  vector[is.na(vector)] = func_vec
+   func_vec = func(vector, na.rm = TRUE)
+   vector[is.na(vector)] = func_vec
   }
   return(vector)
-  }
-  
-  patient_data1 = map_df(patient_data, ~ replace_missing(.x, func = mean)) %>%
-  na.omit()
+}
+
+patient_data1 = map_df(patient_data, ~replace_missing(.x, func = mean)) %>% 
+  na.omit() 
 
 ```
 There are 163 NA in `mews`, 77 in `maritalstatus`, 34 in `insurancetype`, 685 in `bmi`, 5 in `bpsystolic`, 3 in `o2sat`, 2 in `temperature`, 5 in `heartrate`, 3 in `respirationrate`, 1 in `bpdiastolic`. For missing values in numeric varaibles, NA are replaced by the mean of the rest of the dataset, NA in character variables are removed. 
 
 
 you guys can use this `patient_data1` to perform further tests except the issue with untransformed `evisit`. 
+
+
+
+```{r}
+##gender race religion maritalstatus
+patient_data_lm = lm(losdays2 ~ is30dayreadmit + mews + cindex + evisit + icu_flag + ageyear + gender + race + religion + maritalstatus + insurancetype, data = patient_data1)
+
+best <- function(model, ...) 
+{
+  subsets <- regsubsets(formula(model), model.frame(model), ...)
+  subsets <- with(summary(subsets),
+                  cbind(p = as.numeric(rownames(which)), which, rss, rsq, adjr2, cp, bic))
+  
+  return(subsets)
+}  
+
+round(best(patient_data_lm, nbest = 1), 4)    
+```
+
 
 ```{r}
 # Saving dataset for automatic search procedures in SAS
