@@ -151,20 +151,42 @@ you guys can use this `patient_data1` to perform further tests except the issue 
 
 
 ```{r}
-##gender race religion maritalstatus
-patient_data_lm = lm(losdays2 ~ is30dayreadmit + mews + cindex + evisit + icu_flag + ageyear + gender + race + religion + maritalstatus + insurancetype, data = patient_data1)
+patient_data_lm = lm(losdays2 ~ is30dayreadmit + mews + cindex + bmi + evisit + icu_flag + ageyear + gender + race + religion + maritalstatus + insurancetype, data = patient_data1)
+#gendermale  ageyear evisit234 cindex35 is30days
 
-best <- function(model, ...) 
-{
-  subsets <- regsubsets(formula(model), model.frame(model), ...)
-  subsets <- with(summary(subsets),
-                  cbind(p = as.numeric(rownames(which)), which, rss, rsq, adjr2, cp, bic))
-  
-  return(subsets)
-}  
-
-round(best(patient_data_lm, nbest = 1), 4)    
 ```
+
+**1.Forward elimination procedures**
+```{r}
+model <- lm(losdays2 ~ is30dayreadmit + mews + cindex + bmi + evisit + icu_flag + ageyear + gender + race + religion + maritalstatus + insurancetype, data = patient_data1)
+ols_step_forward(model, details = TRUE)
+
+# result: ageyear is30dayreadmit gender insurancetype race bmi
+```
+
+
+**2.Backward elimination procedures**
+```{r}
+model <- lm(losdays2 ~ is30dayreadmit + mews + cindex + bmi + evisit + icu_flag + ageyear + gender + race + religion + maritalstatus + insurancetype, data = patient_data1)
+ols_best_subset(model)
+```
+
+**3.Stepwise regression procedures**
+```{r}
+model <- lm(losdays2 ~ is30dayreadmit + mews + cindex + bmi + evisit + icu_flag + ageyear + gender + race + religion + maritalstatus + insurancetype, data = patient_data1)
+ols_stepwise(model, details = FALSE)
+##not work
+```
+
+**AIC procedure
+```{r}
+ols_stepaic_forward(model)  #cindex mews is30dayreadmit gender insurancetype ageyear
+ols_stepaic_backward(model) #is30dayreadmit mews cindex evisit ageyear  gender  insurancetype
+ols_stepaic_both(model) #cindex evisit is30dayreadmit gender insurancetype ageyear
+
+ols_step_backward(model, details = TRUE)
+```
+
 
 
 
