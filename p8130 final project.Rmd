@@ -358,47 +358,6 @@ ols_step_backward(model, details = TRUE)
 ```
 
 
-
-
-
-```{r}
-# Saving dataset for automatic search procedures in SAS
-
-#write_csv(patient_data1, "/Users/mhk/Desktop/patient_data1.csv")
-
-# patient_data1 = patient_data1 %>%
-#   mutate(male = ifelse(gender == "Male", 1, 0),
-#          afr_american = ifelse(race == "African Amer/Black", 1, 0),
-#          asian = ifelse(race == "Asian", 1, 0),
-#          nat_american = ifelse(race == "Native Amer/Alaskan", 1, 0),
-#          nat_hawaii = ifelse(race == "Natv Hawaii/Pacf Isl", 1, 0),
-#          multi_racial = ifelse(race == "Other/Multiracial", 1, 0),
-#          angelican = ifelse(religion == "Angelican", 1, 0),
-#          catholic = ifelse(religion == "Catholic", 1, 0),
-#          christian = ifelse(religion == "Christian", 1, 0),
-#          hebrew = ifelse(religion == "Hebrew", 1, 0),
-#          hindu = ifelse(religion == "Hindu", 1, 0),
-#          islam = ifelse(religion == "Islam", 1, 0),
-#          jewish = ifelse(religion == "Jewish", 1, 0),
-#          mormon = ifelse(religion == "Mormon", 1, 0),
-#          non_denom = ifelse(religion == "Non Denominational", 1, 0),
-#          married = ifelse(religion == "Married", 1, 0),
-#          widowed = ifelse(maritalstatus == "Widowed", 1, 0),
-#          divorced = ifelse(religion == "Divorced", 1, 0),
-#          separated = ifelse(religion == "Separated", 1, 0),
-#          
-#          )
-  
-  # mutate(gender = recode(gender, "Female" = 1, "Male" = 0),
-  #        race = recode(race, "White" = 0, "African Amer/Black" = 1, "Asian" = 2, "Native Amer/Alaskan" = 3, "Natv Hawaii/Pacf Isl" = 4, "Other/Multiracial" = 5),
-  #        religion = recode(religion, "No Affiliation" = 0, "Angelican" = 1,  "Catholic" = 2, "Christian" = 3, "Hebrew" = 4, "Hindu" = 5, "Islam" = 6, "Jewish" = 7, "Mormon" = 8, "Non Denominational" = 9, "Other" = 10),
-  #        maritalstatus = recode(maritalstatus, "Single" = 0, "Married" = 1, "Widowed" = 2, "Divorced" = 3, "Separated" = 4, "Civil Union" = 5),
-  #       insurancetype = recode(insurancetype, "Private" = 0, "Medicare" = 1, "Medicaid" = 2)) %>%
-  # write_csv(., "/Users/mhk/Desktop/patient_data1.csv")
-
-```
-
-
 ```{r}
 library("leaps")
 model1 = lm(losdays2 ~  mews + cindex + evisit  + ageyear  + insurancetype, data = patient_data1)
@@ -421,7 +380,32 @@ par(mfrow=c(2,2))
 plot(model8)
 ```
 
+###Things need to be considered.
+```{r}
+model <- lm(losdays2 ~ is30dayreadmit + mews + cindex + bmi + evisit + icu_flag + ageyear + gender + race + religion + maritalstatus + insurancetype, data = patient_data1)
+
+best <- function(model, ...) 
+{
+  subsets <- regsubsets(formula(model), model.frame(model), ...)
+  subsets <- with(summary(subsets),
+                  cbind(p = as.numeric(rownames(which)), which, rss, rsq, adjr2, cp, bic))
+  
+  return(subsets)
+}  
+
+round(best(model, nbest = 1), 4)
+#mews ordinal  1234 meaningful -----numeric how to deal with it
+#insurance type----may be confounder.
+# calculate cross validation.
+```
+
+
+```{r save_csv}
+# Saving dataset for automatic search procedures in SAS
+# write_csv(patient_data1, "/Users/mhk/Desktop/patient_data1.csv")
+
+# attemting to comput the cp of models 5, 6 and 8
 
 
 
-
+```
