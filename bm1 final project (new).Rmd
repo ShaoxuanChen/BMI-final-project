@@ -1,0 +1,162 @@
+---
+title: "bm1 final project (new )"
+author: "chianti shi"
+date: "12/11/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(janitor)
+library(haven)
+library(rvest)
+library(stringr)
+library(forcats)
+library(knitr)
+library(ggplot2)
+library(ggpubr)
+library(leaps)
+
+```
+
+
+```{r}
+hospital_data = readxl::read_excel("./data/GHProject_Dataset.xlsx") %>%
+  clean_names() %>% 
+  mutate(patientid = as.character(patientid)) 
+
+hospital_visit = hospital_data %>% 
+  group_by(patientid) %>% 
+  summarize(visit_num = n()) %>% 
+  inner_join(hospital_data, hospital_visit, by = "patientid") %>% 
+  separate(., admitdtm, into = c("dayofweek","date","year"), sep = ",") %>% 
+  mutate(visit_num = as.numeric(visit_num)) 
+
+remove_id = hospital_visit %>% 
+ mutate(date = str_replace(date, "January ", "01"),
+        date = str_replace(date, "February ", "02"),
+        date = str_replace(date, "March ", "03"),
+        date = str_replace(date, "April ", "04"),
+        date = str_replace(date, "May ", "05"),
+        date = str_replace(date, "June ", "06"),
+        date = str_replace(date, "July ", "07"),
+        date = str_replace(date, "August ", "08"),
+        date = str_replace(date, "September ", "09"),
+        date = str_replace(date, "October ", "10"),
+        date = str_replace(date, "November ", "11"),
+        date = str_replace(date, "December ", "12")) %>% 
+  mutate(date = as.numeric(date)) %>% 
+  arrange(date) %>% 
+  group_by(patientid) %>% 
+  filter(date == min(date)) %>% 
+  dplyr::select(-visit_num, -dayofweek, -facilityname, -postalcode, -facilityzip, -mews) %>% 
+  mutate(visitid = as.character(visitid),
+         is30dayreadmit = as.character(is30dayreadmit),
+        cindex = as.character(cindex),
+        icu_flag = as.character(icu_flag))
+
+```
+
+```{r}
+
+summary(remove_id)
+```
+
+
+```{r}
+par(mfrow=c(2,3))
+hist(remove_id$loshours)
+hist(remove_id$losdays2)
+hist(remove_id$ageyear)
+hist(remove_id$bmi)
+hist(remove_id$bpsystolic)
+hist(remove_id$o2sat)
+hist(remove_id$temperature)
+hist(remove_id$heartrate)
+hist(remove_id$respirationrate)
+hist(remove_id$bpdiastolic)
+```
+
+We observe that `loshours`, `losdays2`, `evisit` lack normality so we try to do (I tried a couple transformations and was unable to make evisit normal)
+
+
+```{r warning = FALSE}
+log_loshours = ggplot(data = remove_id, aes(x = log(loshours))) +
+  geom_histogram() 
+
+log_losdays2 = ggplot(data = remove_id, aes(x = log(losdays2))) +
+  geom_histogram()
+
+ggarrange(log_loshours, log_losdays2 + rremove("x.text"), 
+          labels = c("A", "B"),
+          ncol = 2, nrow = 1)
+```
+
+```{r}
+patient_data = remove_id %>% 
+  mutate(loshours = log(loshours),
+         losdays2 = log(losdays2)) %>% 
+  mutate(evisit, evisit = ifelse( evisit>0, 1, evisit)) %>% 
+  mutate(evisit = as.character(evisit))
+
+replace_missing = function(vector, func) {
+  
+  if(is.numeric(vector)) {
+   func_vec = func(vector, na.rm = TRUE)
+   vector[is.na(vector)] = func_vec
+  }
+  return(vector)
+}
+
+patient_data1 = map_df(patient_data, ~replace_missing(.x, func = mean)) %>% 
+  na.omit() 
+```
+
+
+There are 77 in `maritalstatus`, 34 in `insurancetype`, 685 in `bmi`, 5 in `bpsystolic`, 3 in `o2sat`, 2 in `temperature`, 5 in `heartrate`, 3 in `respirationrate`, 1 in `bpdiastolic`. For missing values in numeric varaibles, NA are replaced by the mean of the rest of the dataset, NA in character variables are removed. 
+
+```{r}
+patient_data1 = patient_data1 %>% 
+  mutate(cindex = recode(cindex, '0' = "normal", '1' = 'mild', '2' = 'mild', '3' = 'moderate and severe'),
+         race = recode(race, "White" = "White", "African Amer/Black" = "African Amer/Black", "Asian" = "Other", "Native Amer/Alaskan" = "Other", "Natv Hawaii/Pacf Isl" = "Other", "Other/Multiracial" = "Other"),
+         religion = recode(religion, "Catholic" = "Catholic", "Christian" = "Christian", "Jewish" = "Other", "No Affiliation" = "Other", "Other" = "Other", "Islam" = "Other", "Hindu" = "Other", "Mormon" = "Other", "Angelican" = "Other", "Hebrew" = "Other", "Non Denominational" = "Other"),
+         maritalstatus = recode(maritalstatus, "Single" = "Single", "Married" = "Married", "Widowed" = "Other", "Divorced" = "Other", "Separated" = "Other", "Civil Union" = "Other"))
+
+
+lm_cindex = lm(losdays2 ~ cindex, data = patient_data1_cat)
+lm_race = lm(losdays2 ~ race, data = patient_data1_cat)
+lm_religion = lm(losdays2 ~ religion, data = patient_data1_cat)
+lm_maritalstatus = lm(losdays2 ~ maritalstatus, data = patient_data1_cat)
+
+lm_evisit = lm(losdays2 ~ evisit, data = patient_data1_cat)
+lm_icu_flag = lm(losdays2 ~ icu_flag, data = patient_data1_cat)
+lm_gender = lm(losdays2 ~ gender, data = patient_data1_cat)
+lm_is30dayreadmit = lm(losdays2 ~ is30dayreadmit, data = patient_data1_cat)
+lm_insurancetype = lm(losdays2 ~ insurancetype, data = patient_data1_cat)
+
+summary(lm_cindex)
+summary(lm_race)
+summary(lm_religion)
+summary(lm_maritalstatus)
+
+summary(lm_evisit)
+summary(lm_icu_flag)
+summary(lm_gender)
+summary(lm_is30dayreadmit)
+summary(lm_insurancetype)
+
+
+patient_data1 = patient_data1 %>% 
+  select(-c(race, gender, religion))
+```
+
+###catagorical: 
+
+```{r}
+patient_data1 %>% 
+  select(is30dayreadmit, cindex, evisit, icu_flag, gender, race, religion, maritalstatus, insurancetype) %>% 
+  table()
+```
+
+

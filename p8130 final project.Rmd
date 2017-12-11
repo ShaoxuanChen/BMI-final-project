@@ -156,6 +156,176 @@ patient_data_lm = lm(losdays2 ~ is30dayreadmit + mews + cindex + bmi + evisit + 
 
 ```
 
+```{r}
+attach(patient_data1)
+```
+
+```{r admission}
+within30_lm = lm(patient_data1$losdays2~patient_data1$is30dayreadmit)
+summary(within30_lm)
+par(mfrow=c(2,2))
+plot(within30)
+```
+
+
+```{r cindex}
+
+cindex_lm = lm(patient_data1$losdays2~cindex)
+summary(cindex_lm)
+par(mfrow=c(2,2))
+plot(cindex_lm)
+```
+
+Severity: 0=normal, 1-2=mild, 3-4=moderate and >5=severe 
+
+```{r evisit}
+ #don't know how to transform "evisit"
+
+
+evisit_lm = lm(patient_data1$losdays2~evisit)
+summary(evisit_lm)
+
+```
+
+```{r icu_flag}
+
+
+icu_flag_lm = lm(patient_data1$losdays2~icu_flag)
+summary(icu_flag_lm)
+
+```
+
+```{r age}
+age_lm = lm(patient_data1$losdays2~ageyear)
+summary(age_lm)
+par(mfrow=c(2,2))
+plot(age_lm)
+```
+
+```{r gender}
+gender_lm = lm(patient_data1$losdays2~gender)
+summary(gender_lm)
+anova(gender_lm)
+par(mfrow=c(2,2))
+plot(gender_lm)
+```
+not significant
+
+```{r race}
+race_lm = lm(patient_data1$losdays2~race)
+summary(race_lm)
+anova(race_lm)
+par(mfrow=c(2,2))
+plot(race_lm)
+```
+not significant
+
+```{r religion}
+religion_lm = lm(patient_data1$losdays2~religion)
+summary(religion_lm)
+anova(religion_lm)
+par(mfrow=c(2,2))
+plot(religion_lm)
+```
+Not significant
+
+```{r maritalstatus}
+maritalstatus_lm = lm(patient_data1$losdays2~maritalstatus)
+summary(maritalstatus_lm)
+anova(maritalstatus_lm)
+par(mfrow=c(2,2))
+
+plot(visit_data$maritalstatus, visit_data$losdays2)
+```
+ not
+ 
+```{r insurancetype}
+insurancetype_lm = lm(losdays2~insurancetype)
+summary(insurancetype_lm)
+anova(insurancetype_lm)
+par(mfrow=c(2,2))
+plot(insurancetype_lm)
+```
+
+```{r bmi}
+bmi_lm = lm(losdays2~bmi)
+summary(bmi_lm)
+par(mfrow=c(2,2))
+plot(bmi_lm)
+```
+
+
+```{r mews}
+
+mews_lm = lm(losdays2~mew_data)
+summary(mews_lm)
+par(mfrow=c(2,2))
+plot(mews_lm)
+patient_data1 %>%
+  ggplot(aes(x = mews, y = heartrate)) + geom_point()
+```
+0-1=normal, 2-3=increase caution, 4-5=further deterioration, >5 immediate action required 
+
+Below are different signs in MEWs
+```{r bpsystolic}
+library(stats)
+bpsystolic_lm = lm(losdays2~bpsystolic)
+summary(bpsystolic_lm)
+par(mfrow=c(2,2))
+plot(bpsystolic_lm)
+plot(bpsystolic)
+a = rstandard(bpsystolic_lm)
+b = a[abs(a)>2.5]
+```
+
+```{r o2sat}
+o2sat_lm = lm(losdays2~o2sat)
+summary(o2sat_lm)
+par(mfrow=c(2,2))
+plot(o2sat_lm)  ## normal using percentage
+```
+
+```{r temperature}
+temperature_lm = lm(losdays2~temperature)
+summary(temperature_lm)
+par(mfrow=c(2,2))
+plot(temperature_lm)
+plot(temperature) ## exceed 50
+patient_data1 %>%
+  ggplot(aes(x = patientid, y = evisit)) + geom_point()
+```
+not significant
+
+
+```{r heartrate}
+heartrate_lm = lm(losdays2~heartrate)
+summary(heartrate_lm)
+par(mfrow=c(2,2))
+plot(heartrate_lm)
+patient_data1 %>%
+  ggplot(aes(x = patientid, y = heartrate)) + geom_point() ## has heart rate more than 200
+```
+
+```{r respirationrate}
+respirationrate_lm = lm(losdays2~respirationrate)
+summary(respirationrate_lm)
+par(mfrow=c(2,2))
+plot(respirationrate_lm)
+hist(respirationrate)
+```
+
+```{r bpdiastolic}
+bpdiastolic_lm = lm(losdays2~bpdiastolic)
+summary(bpdiastolic_lm)
+par(mfrow=c(2,2))
+plot(bpdiastolic_lm)  
+patient_data1 %>%
+  ggplot(aes(x = patientid, y = bpdiastolic)) + geom_point()
+```
+
+
+
+
 **1.Forward elimination procedures**
 ```{r}
 model <- lm(losdays2 ~ is30dayreadmit + mews + cindex + bmi + evisit + icu_flag + ageyear + gender + race + religion + maritalstatus + insurancetype, data = patient_data1)
@@ -205,6 +375,10 @@ AIC(model8)
 
 ```
 
+```{r}
+par(mfrow=c(2,2))
+plot(model8)
+```
 
 ###Things need to be considered.
 ```{r}
