@@ -151,9 +151,28 @@ summary(lm_insurancetype)
 
 
 patient_data1 = patient_data1 %>% 
-  select(-c(race, gender, religion))
+  select(-c(race, gender, religion)) %>% 
+  filter(temperature > 25 & temperature< 45) %>%  #https://en.wikipedia.org/wiki/Human_body_temperature According to Wikkipage, the maxium and minimum temperature which human can endure.
+  filter(heartrate<220)
 ```
 
+```{r include=FALSE}
+#Numerical:  ageyear, bmi, "bpsystolic"  ,  "o2sat"  ,temperature" , "heartrate"       "respirationrate", "bpdiastolic"
+# data analysis
+patient_data1 %>% 
+  select(ageyear, bmi, bpsystolic, o2sat, temperature, heartrate, respirationrate, bpdiastolic) %>%  
+  gather(key = "variables", value = "number", ageyear:bpdiastolic) %>% 
+  group_by(variables) %>% 
+  summarise(n_obs = n(),
+             mean = round(mean(number), digits = 2),
+               sd = round(sd(number), digits = 2),
+           median = median(number),
+          munimum = min(number),
+           maxiun = max(number),
+        first_Qu. = quantile(number, 0.25),
+        third_Qu. = quantile(number, 0.75)
+           )
+```
 
 
 
