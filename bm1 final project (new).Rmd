@@ -116,6 +116,40 @@ patient_data1 = map_df(patient_data, ~replace_missing(.x, func = mean)) %>%
 
 There are 77 in `maritalstatus`, 34 in `insurancetype`, 685 in `bmi`, 5 in `bpsystolic`, 3 in `o2sat`, 2 in `temperature`, 5 in `heartrate`, 3 in `respirationrate`, 1 in `bpdiastolic`. For missing values in numeric varaibles, NA are replaced by the mean of the rest of the dataset, NA in character variables are removed. 
 
+```{r}
+patient_data1 = patient_data1 %>% 
+  mutate(cindex = recode(cindex, '0' = "normal", '1' = 'mild', '2' = 'mild', '3' = 'moderate and severe'),
+         race = recode(race, "White" = "White", "African Amer/Black" = "African Amer/Black", "Asian" = "Other", "Native Amer/Alaskan" = "Other", "Natv Hawaii/Pacf Isl" = "Other", "Other/Multiracial" = "Other"),
+         religion = recode(religion, "Catholic" = "Catholic", "Christian" = "Christian", "Jewish" = "Other", "No Affiliation" = "Other", "Other" = "Other", "Islam" = "Other", "Hindu" = "Other", "Mormon" = "Other", "Angelican" = "Other", "Hebrew" = "Other", "Non Denominational" = "Other"),
+         maritalstatus = recode(maritalstatus, "Single" = "Single", "Married" = "Married", "Widowed" = "Other", "Divorced" = "Other", "Separated" = "Other", "Civil Union" = "Other"))
+
+
+lm_cindex = lm(losdays2 ~ cindex, data = patient_data1_cat)
+lm_race = lm(losdays2 ~ race, data = patient_data1_cat)
+lm_religion = lm(losdays2 ~ religion, data = patient_data1_cat)
+lm_maritalstatus = lm(losdays2 ~ maritalstatus, data = patient_data1_cat)
+
+lm_evisit = lm(losdays2 ~ evisit, data = patient_data1_cat)
+lm_icu_flag = lm(losdays2 ~ icu_flag, data = patient_data1_cat)
+lm_gender = lm(losdays2 ~ gender, data = patient_data1_cat)
+lm_is30dayreadmit = lm(losdays2 ~ is30dayreadmit, data = patient_data1_cat)
+lm_insurancetype = lm(losdays2 ~ insurancetype, data = patient_data1_cat)
+
+summary(lm_cindex)
+summary(lm_race)
+summary(lm_religion)
+summary(lm_maritalstatus)
+
+summary(lm_evisit)
+summary(lm_icu_flag)
+summary(lm_gender)
+summary(lm_is30dayreadmit)
+summary(lm_insurancetype)
+
+
+patient_data1 = patient_data1 %>% 
+  select(-c(race, gender, religion))
+```
 
 ###catagorical: 
 
