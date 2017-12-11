@@ -116,6 +116,9 @@ patient_data1 = map_df(patient_data, ~replace_missing(.x, func = mean)) %>%
 
 There are 77 in `maritalstatus`, 34 in `insurancetype`, 685 in `bmi`, 5 in `bpsystolic`, 3 in `o2sat`, 2 in `temperature`, 5 in `heartrate`, 3 in `respirationrate`, 1 in `bpdiastolic`. For missing values in numeric varaibles, NA are replaced by the mean of the rest of the dataset, NA in character variables are removed. 
 
+
+###catagorical: 
+
 ```{r}
 patient_data1 = patient_data1 %>% 
   mutate(cindex = recode(cindex, '0' = "normal", '1' = 'mild', '2' = 'mild', '3' = 'moderate and severe'),
@@ -151,12 +154,6 @@ patient_data1 = patient_data1 %>%
   select(-c(race, gender, religion))
 ```
 
-###catagorical: 
 
-```{r}
-patient_data1 %>% 
-  select(is30dayreadmit, cindex, evisit, icu_flag, gender, race, religion, maritalstatus, insurancetype) %>% 
-  table()
-```
 
 
