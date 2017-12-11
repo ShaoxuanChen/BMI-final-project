@@ -127,16 +127,16 @@ patient_data1 = patient_data1 %>%
          maritalstatus = recode(maritalstatus, "Single" = "Single", "Married" = "Married", "Widowed" = "Other", "Divorced" = "Other", "Separated" = "Other", "Civil Union" = "Other"))
 
 
-lm_cindex = lm(losdays2 ~ cindex, data = patient_data1_cat)
-lm_race = lm(losdays2 ~ race, data = patient_data1_cat)
-lm_religion = lm(losdays2 ~ religion, data = patient_data1_cat)
-lm_maritalstatus = lm(losdays2 ~ maritalstatus, data = patient_data1_cat)
+lm_cindex = lm(losdays2 ~ cindex, data = patient_data1)
+lm_race = lm(losdays2 ~ race, data = patient_data1)
+lm_religion = lm(losdays2 ~ religion, data = patient_data1)
+lm_maritalstatus = lm(losdays2 ~ maritalstatus, data = patient_data1)
 
-lm_evisit = lm(losdays2 ~ evisit, data = patient_data1_cat)
-lm_icu_flag = lm(losdays2 ~ icu_flag, data = patient_data1_cat)
-lm_gender = lm(losdays2 ~ gender, data = patient_data1_cat)
-lm_is30dayreadmit = lm(losdays2 ~ is30dayreadmit, data = patient_data1_cat)
-lm_insurancetype = lm(losdays2 ~ insurancetype, data = patient_data1_cat)
+lm_evisit = lm(losdays2 ~ evisit, data = patient_data1)
+lm_icu_flag = lm(losdays2 ~ icu_flag, data = patient_data1)
+lm_gender = lm(losdays2 ~ gender, data = patient_data1)
+lm_is30dayreadmit = lm(losdays2 ~ is30dayreadmit, data = patient_data1)
+lm_insurancetype = lm(losdays2 ~ insurancetype, data = patient_data1)
 
 summary(lm_cindex)
 summary(lm_race)
