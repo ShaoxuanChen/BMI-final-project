@@ -167,8 +167,11 @@ round(best(patient_data_lm, nbest = 1), 4)
 ```
 
 
-```{r}
+```{r save_csv}
 # Saving dataset for automatic search procedures in SAS
-write_csv(patient_data1, "/Users/mhk/Desktop/patient_data1.csv")
-```
+# write_csv(patient_data1, "/Users/mhk/Desktop/patient_data1.csv")
 
+# attemting to comput the cp of models 5, 6 and 8
+
+
+```
