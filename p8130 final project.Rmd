@@ -188,15 +188,6 @@ ols_step_backward(model, details = TRUE)
 ```
 
 
-
-
-
-```{r}
-# Saving dataset for automatic search procedures in SAS
-write_csv(patient_data1, "/Users/mhk/Desktop/patient_data1.csv")
-```
-
-
 ```{r}
 library("leaps")
 model1 = lm(losdays2 ~  mews + cindex + evisit  + ageyear  + insurancetype, data = patient_data1)
