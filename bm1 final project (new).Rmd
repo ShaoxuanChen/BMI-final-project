@@ -1,0 +1,28 @@
+---
+title: "bm1 final project (new )"
+author: "chianti shi"
+date: "12/11/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(janitor)
+library(haven)
+library(rvest)
+library(stringr)
+library(forcats)
+library(knitr)
+library(ggplot2)
+library(ggpubr)
+library(leaps)
+
+```
+
+
+```{r}
+hospital_data = readxl::read_excel("./data/GHProject_Dataset.xlsx") %>%
+  clean_names() 
+```
+
