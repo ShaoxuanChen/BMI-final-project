@@ -176,3 +176,22 @@ patient_data1 %>%
 
 
 
+###Anova
+
+```{r}
+mlr_automatic = lm(losdays2 ~ is30dayreadmit+cindex+evisit+ageyear+maritalstatus+insurancetype+bpsystolic+temperature+heartrate+respirationrate+bpdiastolic, data = patient_data1)  
+
+
+mlr_criterion = lm(losdays2 ~ is30dayreadmit+cindex+evisit+ageyear+maritalstatus+insurancetype+bpsystolic+temperature+heartrate+respirationrate+bpdiastolic+o2sat, data = patient_data1)  
+```
+
+```{r}
+summary(mlr_automatic)
+summary(mlr_criterion)
+```
+
+
+```{r}
+anova(mlr_automatic, mlr_criterion)
+```
+we choose the results with `mlr_automatic`, since the p value of 0.1179 indicating that  `mlr_criterion` is not superior. Also when we look at the summary for  `mlr_criterion` , the variable `o2sat` is not significant. 
