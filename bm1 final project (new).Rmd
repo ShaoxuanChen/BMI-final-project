@@ -261,7 +261,7 @@ We then get hat matrix to check outliers in X:
 ```{r}
 hat = hatvalues(mlr_automatic)
 hat[hat > 0.2]
-hat[hat > 2*2/4]
+hat[hat > 2*11/3497]
 ```
 
 ```{r}
@@ -269,7 +269,7 @@ nooutliers <- patient_data1[-c(25,35,118,152,157,220,223,226,445,498,570,593,814
 
 mult.fit_nooutliers<- lm(losdays2 ~ is30dayreadmit+cindex+evisit+ageyear+maritalstatus+insurancetype+bpsystolic+temperature+heartrate+respirationrate+bpdiastolic, data = nooutliers) 
 summary(mult.fit_nooutliers)
-summary(mult.fit_nooutliers)
+plot(mult.fit_nooutliers)
 ```
 
 
@@ -291,4 +291,12 @@ set.seed(1)
   summary(mlr_automatic)
 ```
 
+#caculate VIF to check for the collinearility
+```{r}
+library(HH)
+library(pander)
+vif(mlr_automatic) 
+```
+insurancetype Medicare and insurancetype medicare : the VIF is greater thatn 5. Means that the variables are highly correlated among themselves. But from the summary of the model (mlr_automatic), the multicollinearity doesn't cause non-significant among the other variables.
+```
 
