@@ -273,3 +273,13 @@ plot(mult.fit_nooutliers)
 ```
 
 
+```{r}
+#caculate VIF to check for the collinearility
+```{r}
+library(HH)
+library(pander)
+vif(mlr_automatic) 
+```
+insurancetype Medicare and insurancetype medicare : the VIF is greater thatn 5. Means that the variables are highly correlated among themselves. But from the summary of the model (mlr_automatic), the multicollinearity doesn't cause non-significant among the other variables.
+```
+
