@@ -274,6 +274,23 @@ plot(mult.fit_nooutliers)
 
 
 ```{r}
+set.seed(1)
+
+  patient_data1 %>% 
+  select(losdays2, is30dayreadmit, cindex, evisit, ageyear, maritalstatus, insurancetype, bpsystolic, temperature, heartrate, respirationrate, bpdiastolic) %>% 
+  modelr::bootstrap(n = 1000) %>% 
+  mutate(models = map(strap, ~lm(losdays2 ~ is30dayreadmit+cindex+evisit+ageyear+maritalstatus+insurancetype+bpsystolic+temperature+heartrate+respirationrate+bpdiastolic, data = .x)),
+         results = map(models, broom::tidy)) %>% 
+  select(-strap, -models) %>% 
+  unnest() %>%
+  group_by(term) %>% 
+  summarize(mean_estimate = round(mean(estimate), 2),
+            variance = round(var(estimate), 2))
+  
+  # compare to model estimates
+  summary(mlr_automatic)
+```
+
 #caculate VIF to check for the collinearility
 ```{r}
 library(HH)
