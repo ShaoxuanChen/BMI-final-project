@@ -194,7 +194,7 @@ round(best(model, nvmax= 30, nbest = 1), 4)
 **1.Forward elimination procedures**
 ```{r}
 model = lm(losdays2 ~ ageyear+ bmi+ bpsystolic+ o2sat + temperature + heartrate + respirationrate +bpdiastolic + cindex + evisit + icu_flag + maritalstatus + insurancetype + is30dayreadmit, data = patient_data1 )
-ols_step_forward(model, details = TRUE)
+#ols_step_forward(model, details = TRUE)
 
 # result: ageyear is30dayreadmit gender insurancetype race bmi
 ```
@@ -203,28 +203,21 @@ ols_step_forward(model, details = TRUE)
 **2.Backward elimination procedures**
 ```{r}
 model = lm(losdays2 ~ ageyear+ bmi+ bpsystolic+ o2sat + temperature + heartrate + respirationrate +bpdiastolic + cindex + evisit + icu_flag + maritalstatus + insurancetype + is30dayreadmit, data = patient_data1 )
-ols_best_subset(model)
+#ols_best_subset(model)
 
 ```
 
 **3.Stepwise regression procedures**
 ```{r}
 model = lm(losdays2 ~ ageyear+ bmi+ bpsystolic+ o2sat + temperature + heartrate + respirationrate +bpdiastolic + cindex + evisit + icu_flag + maritalstatus + insurancetype + is30dayreadmit, data = patient_data1 )
-ols_stepwise(model, details = FALSE)
+#ols_stepwise(model, details = FALSE)
 ##not work
 ```
 
-**AIC procedure
-```{r}
-ols_stepaic_forward(model)  #cindex mews is30dayreadmit gender insurancetype ageyear
-ols_stepaic_backward(model) #is30dayreadmit mews cindex evisit ageyear  gender  insurancetype
-ols_stepaic_both(model) #cindex evisit is30dayreadmit gender insurancetype ageyear
-
-ols_step_backward(model, details = TRUE)
-```
 
 
-```
+
+
 
 ###Anova
 
@@ -245,3 +238,10 @@ summary(mlr_criterion)
 anova(mlr_automatic, mlr_criterion)
 ```
 we choose the results with `mlr_automatic`, since the p value of 0.1179 indicating that  `mlr_criterion` is not superior. Also when we look at the summary for  `mlr_criterion` , the variable `o2sat` is not significant. 
+
+
+```{r}
+plot(mlr_automatic)
+plot(mlr_criterion)
+```
+
