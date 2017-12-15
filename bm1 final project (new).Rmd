@@ -116,24 +116,27 @@ patient_data1 = map_df(patient_data, ~replace_missing(.x, func = mean)) %>%
 
 There are 77 in `maritalstatus`, 34 in `insurancetype`, 685 in `bmi`, 5 in `bpsystolic`, 3 in `o2sat`, 2 in `temperature`, 5 in `heartrate`, 3 in `respirationrate`, 1 in `bpdiastolic`. For missing values in numeric varaibles, NA are replaced by the mean of the rest of the dataset, NA in character variables are removed. 
 
+
+###catagorical: 
+
 ```{r}
 patient_data1 = patient_data1 %>% 
-  mutate(cindex = recode(cindex, '0' = "normal", '1' = 'mild', '2' = 'mild', '3' = 'moderate and severe'),
+  mutate(cindex = recode(cindex, '0' = "Normal", '1' = "Mild", '2' = "Mild", '3' = "Moderate and Severe", '5' = "Moderate and Severe"),
          race = recode(race, "White" = "White", "African Amer/Black" = "African Amer/Black", "Asian" = "Other", "Native Amer/Alaskan" = "Other", "Natv Hawaii/Pacf Isl" = "Other", "Other/Multiracial" = "Other"),
          religion = recode(religion, "Catholic" = "Catholic", "Christian" = "Christian", "Jewish" = "Other", "No Affiliation" = "Other", "Other" = "Other", "Islam" = "Other", "Hindu" = "Other", "Mormon" = "Other", "Angelican" = "Other", "Hebrew" = "Other", "Non Denominational" = "Other"),
          maritalstatus = recode(maritalstatus, "Single" = "Single", "Married" = "Married", "Widowed" = "Other", "Divorced" = "Other", "Separated" = "Other", "Civil Union" = "Other"))
 
 
-lm_cindex = lm(losdays2 ~ cindex, data = patient_data1_cat)
-lm_race = lm(losdays2 ~ race, data = patient_data1_cat)
-lm_religion = lm(losdays2 ~ religion, data = patient_data1_cat)
-lm_maritalstatus = lm(losdays2 ~ maritalstatus, data = patient_data1_cat)
+lm_cindex = lm(losdays2 ~ cindex, data = patient_data1)
+lm_race = lm(losdays2 ~ race, data = patient_data1)
+lm_religion = lm(losdays2 ~ religion, data = patient_data1)
+lm_maritalstatus = lm(losdays2 ~ maritalstatus, data = patient_data1)
 
-lm_evisit = lm(losdays2 ~ evisit, data = patient_data1_cat)
-lm_icu_flag = lm(losdays2 ~ icu_flag, data = patient_data1_cat)
-lm_gender = lm(losdays2 ~ gender, data = patient_data1_cat)
-lm_is30dayreadmit = lm(losdays2 ~ is30dayreadmit, data = patient_data1_cat)
-lm_insurancetype = lm(losdays2 ~ insurancetype, data = patient_data1_cat)
+lm_evisit = lm(losdays2 ~ evisit, data = patient_data1)
+lm_icu_flag = lm(losdays2 ~ icu_flag, data = patient_data1)
+lm_gender = lm(losdays2 ~ gender, data = patient_data1)
+lm_is30dayreadmit = lm(losdays2 ~ is30dayreadmit, data = patient_data1)
+lm_insurancetype = lm(losdays2 ~ insurancetype, data = patient_data1)
 
 summary(lm_cindex)
 summary(lm_race)
@@ -148,15 +151,125 @@ summary(lm_insurancetype)
 
 
 patient_data1 = patient_data1 %>% 
-  select(-c(race, gender, religion))
+  select(-c(race, gender, religion)) %>% 
+  filter(temperature > 25 & temperature< 45) %>%  #https://en.wikipedia.org/wiki/Human_body_temperature According to Wikkipage, the maxium and minimum temperature which human can endure.
+  filter(heartrate<220)
 ```
 
-###catagorical: 
+```{r include=FALSE}
+#Numerical:  ageyear, bmi, "bpsystolic"  ,  "o2sat"  ,temperature" , "heartrate"       "respirationrate", "bpdiastolic"
+# data analysis
+patient_data1 %>% 
+  select(ageyear, bmi, bpsystolic, o2sat, temperature, heartrate, respirationrate, bpdiastolic) %>%  
+  gather(key = "variables", value = "number", ageyear:bpdiastolic) %>% 
+  group_by(variables) %>% 
+  summarise(n_obs = n(),
+             mean = round(mean(number), digits = 2),
+               sd = round(sd(number), digits = 2),
+           median = median(number),
+          munimum = min(number),
+           maxiun = max(number),
+        first_Qu. = quantile(number, 0.25),
+        third_Qu. = quantile(number, 0.75)
+           )
+```
 
 ```{r}
-patient_data1 %>% 
-  select(is30dayreadmit, cindex, evisit, icu_flag, gender, race, religion, maritalstatus, insurancetype) %>% 
-  table()
+model = lm(losdays2 ~ ageyear+ bmi+ bpsystolic+ o2sat + temperature + heartrate + respirationrate +bpdiastolic + cindex + evisit + icu_flag + maritalstatus + insurancetype + is30dayreadmit, data = patient_data1 )
+
+best <- function(model, ...) 
+{
+  subsets <- regsubsets(formula(model), model.frame(model), ...)
+  subsets <- with(summary(subsets),
+                  cbind(p = as.numeric(rownames(which)), which, rss, rsq, adjr2, cp, bic))
+  
+  return(subsets)
+} 
+
+round(best(model, nvmax= 30, nbest = 1), 4)
+
+```
+
+
+**1.Forward elimination procedures**
+```{r}
+model = lm(losdays2 ~ ageyear+ bmi+ bpsystolic+ o2sat + temperature + heartrate + respirationrate +bpdiastolic + cindex + evisit + icu_flag + maritalstatus + insurancetype + is30dayreadmit, data = patient_data1 )
+#ols_step_forward(model, details = TRUE)
+
+# result: ageyear is30dayreadmit gender insurancetype race bmi
+```
+
+
+**2.Backward elimination procedures**
+```{r}
+model = lm(losdays2 ~ ageyear+ bmi+ bpsystolic+ o2sat + temperature + heartrate + respirationrate +bpdiastolic + cindex + evisit + icu_flag + maritalstatus + insurancetype + is30dayreadmit, data = patient_data1 )
+#ols_best_subset(model)
+
+```
+
+**3.Stepwise regression procedures**
+```{r}
+model = lm(losdays2 ~ ageyear+ bmi+ bpsystolic+ o2sat + temperature + heartrate + respirationrate +bpdiastolic + cindex + evisit + icu_flag + maritalstatus + insurancetype + is30dayreadmit, data = patient_data1 )
+#ols_stepwise(model, details = FALSE)
+##not work
+```
+
+
+
+
+
+
+###Anova
+
+```{r}
+mlr_automatic = lm(losdays2 ~ is30dayreadmit+cindex+evisit+ageyear+maritalstatus+insurancetype+bpsystolic+temperature+heartrate+respirationrate+bpdiastolic, data = patient_data1)  
+
+
+mlr_criterion = lm(losdays2 ~ is30dayreadmit+cindex+evisit+ageyear+maritalstatus+insurancetype+bpsystolic+temperature+heartrate+respirationrate+bpdiastolic+o2sat, data = patient_data1)  
+```
+
+```{r}
+summary(mlr_automatic)
+summary(mlr_criterion)
+```
+
+
+```{r}
+anova(mlr_automatic, mlr_criterion)
+```
+we choose the results with `mlr_automatic`, since the p value of 0.1179 indicating that  `mlr_criterion` is not superior. Also when we look at the summary for  `mlr_criterion` , the variable `o2sat` is not significant. 
+
+
+```{r}
+par(mfrow=c(2,2))
+plot(mlr_automatic)
+par(mfrow=c(2,2))
+plot(mlr_criterion)
+```
+
+(a) Measures of influence : identify any leverage
+
+We first check outliers in Y:
+
+```{r}
+influence_measure = rstandard(mlr_automatic)
+outlier_y = influence_measure[abs(influence_measure) > 2.5]
+outlier_y
+```
+
+We then get hat matrix to check outliers in X:
+```{r}
+hat = hatvalues(mlr_automatic)
+hat[hat > 0.2]
+hat[hat > 2*2/4]
+```
+
+```{r}
+nooutliers <- patient_data1[-c(25,35,118,152,157,220,223,226,445,498,570,593,814,839,841,872,915,916,1029,1124,1134,1248,1255,1256,1341,1348,1473,1494,1677,1799,1811,1838,2051,2052,2117,2233,2251,2261,2485,2489,2504,2582,2605,2616,2717,2752,2796,2797,2831,2858,2885,2929,2970,3177,3199,3265,3292),]
+
+mult.fit_nooutliers<- lm(losdays2 ~ is30dayreadmit+cindex+evisit+ageyear+maritalstatus+insurancetype+bpsystolic+temperature+heartrate+respirationrate+bpdiastolic, data = nooutliers) 
+summary(mult.fit_nooutliers)
+summary(mult.fit_nooutliers)
 ```
 
 
