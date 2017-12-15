@@ -261,7 +261,7 @@ We then get hat matrix to check outliers in X:
 ```{r}
 hat = hatvalues(mlr_automatic)
 hat[hat > 0.2]
-hat[hat > 2*2/4]
+hat[hat > 2*11/3497]
 ```
 
 ```{r}
@@ -269,7 +269,7 @@ nooutliers <- patient_data1[-c(25,35,118,152,157,220,223,226,445,498,570,593,814
 
 mult.fit_nooutliers<- lm(losdays2 ~ is30dayreadmit+cindex+evisit+ageyear+maritalstatus+insurancetype+bpsystolic+temperature+heartrate+respirationrate+bpdiastolic, data = nooutliers) 
 summary(mult.fit_nooutliers)
-summary(mult.fit_nooutliers)
+plot(mult.fit_nooutliers)
 ```
 
 
