@@ -241,7 +241,35 @@ we choose the results with `mlr_automatic`, since the p value of 0.1179 indicati
 
 
 ```{r}
+par(mfrow=c(2,2))
 plot(mlr_automatic)
+par(mfrow=c(2,2))
 plot(mlr_criterion)
 ```
+
+(a) Measures of influence : identify any leverage
+
+We first check outliers in Y:
+
+```{r}
+influence_measure = rstandard(mlr_automatic)
+outlier_y = influence_measure[abs(influence_measure) > 2.5]
+outlier_y
+```
+
+We then get hat matrix to check outliers in X:
+```{r}
+hat = hatvalues(mlr_automatic)
+hat[hat > 0.2]
+hat[hat > 2*2/4]
+```
+
+```{r}
+nooutliers <- patient_data1[-c(25,35,118,152,157,220,223,226,445,498,570,593,814,839,841,872,915,916,1029,1124,1134,1248,1255,1256,1341,1348,1473,1494,1677,1799,1811,1838,2051,2052,2117,2233,2251,2261,2485,2489,2504,2582,2605,2616,2717,2752,2796,2797,2831,2858,2885,2929,2970,3177,3199,3265,3292),]
+
+mult.fit_nooutliers<- lm(losdays2 ~ is30dayreadmit+cindex+evisit+ageyear+maritalstatus+insurancetype+bpsystolic+temperature+heartrate+respirationrate+bpdiastolic, data = nooutliers) 
+summary(mult.fit_nooutliers)
+summary(mult.fit_nooutliers)
+```
+
 
