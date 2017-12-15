@@ -121,7 +121,7 @@ There are 77 in `maritalstatus`, 34 in `insurancetype`, 685 in `bmi`, 5 in `bpsy
 
 ```{r}
 patient_data1 = patient_data1 %>% 
-  mutate(cindex = recode(cindex, '0' = "normal", '1' = 'mild', '2' = 'mild', '3' = 'moderate and severe'),
+  mutate(cindex = recode(cindex, '0' = "Normal", '1' = "Mild", '2' = "Mild", '3' = "Moderate and Severe", '5' = "Moderate and Severe"),
          race = recode(race, "White" = "White", "African Amer/Black" = "African Amer/Black", "Asian" = "Other", "Native Amer/Alaskan" = "Other", "Natv Hawaii/Pacf Isl" = "Other", "Other/Multiracial" = "Other"),
          religion = recode(religion, "Catholic" = "Catholic", "Christian" = "Christian", "Jewish" = "Other", "No Affiliation" = "Other", "Other" = "Other", "Islam" = "Other", "Hindu" = "Other", "Mormon" = "Other", "Angelican" = "Other", "Hebrew" = "Other", "Non Denominational" = "Other"),
          maritalstatus = recode(maritalstatus, "Single" = "Single", "Married" = "Married", "Widowed" = "Other", "Divorced" = "Other", "Separated" = "Other", "Civil Union" = "Other"))
@@ -174,7 +174,57 @@ patient_data1 %>%
            )
 ```
 
+```{r}
+model = lm(losdays2 ~ ageyear+ bmi+ bpsystolic+ o2sat + temperature + heartrate + respirationrate +bpdiastolic + cindex + evisit + icu_flag + maritalstatus + insurancetype + is30dayreadmit, data = patient_data1 )
 
+best <- function(model, ...) 
+{
+  subsets <- regsubsets(formula(model), model.frame(model), ...)
+  subsets <- with(summary(subsets),
+                  cbind(p = as.numeric(rownames(which)), which, rss, rsq, adjr2, cp, bic))
+  
+  return(subsets)
+} 
+
+round(best(model, nvmax= 30, nbest = 1), 4)
+
+```
+
+
+**1.Forward elimination procedures**
+```{r}
+model = lm(losdays2 ~ ageyear+ bmi+ bpsystolic+ o2sat + temperature + heartrate + respirationrate +bpdiastolic + cindex + evisit + icu_flag + maritalstatus + insurancetype + is30dayreadmit, data = patient_data1 )
+ols_step_forward(model, details = TRUE)
+
+# result: ageyear is30dayreadmit gender insurancetype race bmi
+```
+
+
+**2.Backward elimination procedures**
+```{r}
+model = lm(losdays2 ~ ageyear+ bmi+ bpsystolic+ o2sat + temperature + heartrate + respirationrate +bpdiastolic + cindex + evisit + icu_flag + maritalstatus + insurancetype + is30dayreadmit, data = patient_data1 )
+ols_best_subset(model)
+
+```
+
+**3.Stepwise regression procedures**
+```{r}
+model = lm(losdays2 ~ ageyear+ bmi+ bpsystolic+ o2sat + temperature + heartrate + respirationrate +bpdiastolic + cindex + evisit + icu_flag + maritalstatus + insurancetype + is30dayreadmit, data = patient_data1 )
+ols_stepwise(model, details = FALSE)
+##not work
+```
+
+**AIC procedure
+```{r}
+ols_stepaic_forward(model)  #cindex mews is30dayreadmit gender insurancetype ageyear
+ols_stepaic_backward(model) #is30dayreadmit mews cindex evisit ageyear  gender  insurancetype
+ols_stepaic_both(model) #cindex evisit is30dayreadmit gender insurancetype ageyear
+
+ols_step_backward(model, details = TRUE)
+```
+
+
+```
 
 ###Anova
 
